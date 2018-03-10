@@ -1,11 +1,15 @@
 import logging
-import os
 
 from inotify_simple import INotify, flags
 
 
+ONE_SHOT = 'one-shot'
+FROM_START = 'from-start'
+TAIL = 'tail'
+
+
 class Logstreamer():
-    def __init__(self, path, target, splitter='\n'):
+    def __init__(self, path, target, splitter='\n', mode=ONE_SHOT):
         """
         Create new Logstreamer.
 
@@ -18,7 +22,14 @@ class Logstreamer():
         """
         self.path = path
         self.target = target
-        self.splitter = splitter
+        self.splitter = self.make_splitter(splitter)
+        self.mode = mode
+
+    def make_splitter(self, splitter):
+        if isinstance(splitter, str):
+            return lambda x: x.split(splitter)
+        else:
+            raise Exception("splitter based on %t is not implemented yet" % splitter)
 
     def run(self):
         """
